@@ -1,0 +1,24 @@
+.upload-image{
+    width: 100%;
+    height: 150px;
+    background-color: rgba(0,0,0, 0.06);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.upload-image input[type="file"]{
+    display: none;
+}
+
+.upload-image svg{
+    opacity: 60%;
+    transition: all 0.5s;
+}
+
+.upload-image:hover svg{
+    transform: scale(1.2);
+}

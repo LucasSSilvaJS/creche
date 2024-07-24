@@ -1,0 +1,14 @@
+.input-field{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+label{
+    font-family: var(--primary__font);
+    color: var(--quaternary__color);
+    font-size: var(--label__size);
+    font-weight: var(--label__weight);
+}

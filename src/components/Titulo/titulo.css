@@ -1,0 +1,6 @@
+.titulo h1{
+    font-family: var(--secondary__font);
+    font-size: var(--title__size);
+    color: var(--quaternary__color);
+    text-align: center;
+}

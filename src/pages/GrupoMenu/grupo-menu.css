@@ -1,0 +1,10 @@
+.grupo-menu{
+    background-color: var(--primary__color);
+}
+
+.grupo-menu__subtitle{
+    color: var(--quaternary__color);
+    font-family: var(--primary__font);
+    font-size: var(--subtitle__size);
+    font-weight: var(--subtitle__weight);
+}

@@ -1,0 +1,13 @@
+.button-full{
+    width: 100%;
+}
+
+.button-full button{
+    width: 100%;
+    height: 38px;
+    color: var(--primary__color);
+    background-color: var(--tertiary__color);
+    font-size: var(--btn__size);
+    font-weight: var(--btn__weight);
+    font-family: var(--primary__font);
+}

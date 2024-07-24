@@ -1,0 +1,12 @@
+.login{
+    background-color: var(--primary__color);
+}
+
+.login a{
+    width: 100%;
+    color: var(--quaternary__color);
+    margin-top: 15px;
+    font-size: var(--link__size);
+    font-family: var(--primary__font);
+    font-weight: var(--link__weight);
+}
