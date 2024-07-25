@@ -52,8 +52,6 @@ function GrupoMenu(){
 
             <ButtonFull texto="Itens perdidos" marginTop="20px" handleAction={() => navigate(`/grupo/menu/${id}/perdidos`)}/>
 
-            <ButtonFull texto="Calendário" marginTop="20px" handleAction={() => navigate(`/grupo/menu/${id}/calendario`)}/>
-
             <NavBar/>
 
             {loading && <Loading/>}

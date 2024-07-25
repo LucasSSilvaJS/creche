@@ -16,10 +16,13 @@ function AuthProvider({ children }) {
     const [loadingRegister, setLoadingRegister] = useState(false)
 
     useEffect(() => {
-        const userLocal = getLoginInLocalStorage()
-        if(userLocal){
-            setUser(userLocal)
+        function setLocalUser(){
+            const userLocal = getLoginInLocalStorage()
+            if(userLocal){
+                setUser(userLocal)
+            }
         }
+        setLocalUser()
     }, [])
 
     async function login(email, password) {

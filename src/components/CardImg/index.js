@@ -1,12 +1,7 @@
-import { BiEdit, BiAddToQueue, BiTrash } from 'react-icons/bi'
+import { BiEdit, BiTrash } from 'react-icons/bi'
 import './card-img.css'
 
-function CardImg({children, urlImg, handleEdit, handleDelete, addLostItem, handleNavigate}){
-
-    function clickLost(e){
-        e.stopPropagation()
-        return addLostItem()
-    }
+function CardImg({children, urlImg, handleEdit, handleDelete, handleNavigate, adm = true, ableEdit = true}){
 
     function clickEdit(e){
         e.stopPropagation()
@@ -25,17 +20,17 @@ function CardImg({children, urlImg, handleEdit, handleDelete, addLostItem, handl
                 {children}
             </div>
             <div className='card-img__buttons'>
-                {addLostItem && (
-                    <button className="button__lost" onClick={clickLost}>
-                        <BiAddToQueue size={20} color="#F3EEEA"/>
+                {ableEdit && (
+                    <button className="button__edit" onClick={clickEdit}>
+                        <BiEdit size={20} color="#F3EEEA"/>
                     </button>
                 )}
-                <button className="button__edit" onClick={clickEdit}>
-                    <BiEdit size={20} color="#F3EEEA"/>
-                </button>
-                <button className="button__remove" onClick={clickDelete}>
-                    <BiTrash size={20} color="#F3EEEA"/>
-                </button>
+
+                {adm && (
+                    <button className="button__remove" onClick={clickDelete}>
+                        <BiTrash size={20} color="#F3EEEA"/>
+                    </button>
+                )}
             </div>
         </article>
     )

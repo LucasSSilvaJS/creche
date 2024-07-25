@@ -5,14 +5,13 @@ import { getFirestore } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCqguX-z7ojmdGz-q6RRWUzA1gITv7IhrI",
-    authDomain: "creche-e443b.firebaseapp.com",
-    projectId: "creche-e443b",
-    storageBucket: "creche-e443b.appspot.com",
-    messagingSenderId: "254007847017",
-    appId: "1:254007847017:web:6adfc45688a28318041af8",
-    measurementId: "G-NR04PCGMRR"
-};
+    apiKey: "AIzaSyDW26YK9fh3B7Nx0FjDX0bWrIWWqCZhseU",
+    authDomain: "creche2-cc099.firebaseapp.com",
+    projectId: "creche2-cc099",
+    storageBucket: "creche2-cc099.appspot.com",
+    messagingSenderId: "354439772531",
+    appId: "1:354439772531:web:14610901854db27adfed06"
+}
 
 const initializeFirebase = initializeApp(firebaseConfig)
 

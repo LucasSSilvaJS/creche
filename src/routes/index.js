@@ -12,6 +12,8 @@ import AdicionarItem from '../pages/AdicionarItem'
 
 import Private from './Private'
 import Public from './Public'
+import ListaProfissionais from '../pages/ListaProfissionais'
+import AdicionarProfissional from '../pages/AdicionarProfissional'
 
 function RoutesApp(){
     return(
@@ -67,6 +69,14 @@ function RoutesApp(){
             <Route 
                 path="/grupo/menu/:id/estudantes/estudante/:idEstudante/itens/item/:idItem" 
                 element={<Private><AdicionarItem/></Private>}
+            />
+            <Route 
+                path="/grupo/menu/:id/profissionais" 
+                element={<Private><ListaProfissionais/></Private>}
+            />
+            <Route 
+                path="/grupo/menu/:id/profissionais/profissional" 
+                element={<Private><AdicionarProfissional/></Private>}
             />
         </Routes>
     )

@@ -5,7 +5,7 @@ import './lista-estudantes.css'
 import NavBar from '../../components/NavBar'
 import Titulo from '../../components/Titulo'
 import ButtonAdd from '../../components/ButtonAdd'
-import CardImg from '../../components/CardImg'
+import Card from '../../components/Card'
 import Loading from '../../components/Loading'
 
 import { useNavigate, useParams } from 'react-router-dom'
@@ -35,8 +35,7 @@ function ListaEstudantes(){
                 snapshot.docs.forEach(item => {
                     lista.push({
                         id: item.id,
-                        nome: item.data().nome,
-                        url: item.data().url
+                        nome: item.data().nome
                     })
                 })
 
@@ -58,15 +57,14 @@ function ListaEstudantes(){
 
             { estudantes.map((estudante, index) => {
                 return(
-                    <CardImg 
+                    <Card 
                     key={index}
-                    urlImg={estudante.url} 
-                    handleDelete={() => alert('deletando')} 
-                    handleEdit={() => {navigate(`/grupo/menu/${id}/estudantes/estudante/${estudante.id}`)}}
-                    handleNavigate={() => {navigate(`/grupo/menu/${id}/estudantes/estudante/${estudante.id}/itens`)}}
+                    title={estudante.nome}
+                    handleDeleteCard={() => alert('deletando')}
+                    handleEditCard={() => {navigate(`/grupo/menu/${id}/estudantes/estudante/${estudante.id}`)}}
+                    handleMenu={() => {navigate(`/grupo/menu/${id}/estudantes/estudante/${estudante.id}/itens`)}}
                     >
-                        <h2>{estudante.nome}</h2>
-                    </CardImg>
+                    </Card>
                 )
             })
             }
