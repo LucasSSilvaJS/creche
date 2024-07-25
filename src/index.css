@@ -62,3 +62,7 @@ button{
 .responsive-navbar{
     padding-bottom: 90px;
 }
+
+.cursor{
+    cursor: auto;
+}
