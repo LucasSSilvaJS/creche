@@ -40,11 +40,20 @@ function AdicionarProfissional() {
             const userSearch = filterList.docs[0] 
 
             const docRefGrupos = doc(db, 'grupos', id)
-            const grupos = await getDoc(docRefGrupos)
+            const grupo = await getDoc(docRefGrupos)
             
-            const admId = grupos.data().userId
+            const admId = grupo.data().userId
 
             const idRequest = userSearch.id
+
+            const solicitacoes = grupo.data().solicitacoes
+
+            const existIdInRequests = solicitacoes.some(id => id === idRequest)
+
+            if(existIdInRequests){
+                toast.warn('Solicitação já enviada!')
+                return
+            }
 
             if(admId !== idRequest){
             

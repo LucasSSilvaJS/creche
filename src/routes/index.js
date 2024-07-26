@@ -14,6 +14,9 @@ import Private from './Private'
 import Public from './Public'
 import ListaProfissionais from '../pages/ListaProfissionais'
 import AdicionarProfissional from '../pages/AdicionarProfissional'
+import ItensPerdidos from '../pages/ItensPerdidos'
+import AdicionarItemPerdido from '../pages/AdicionarItemPerdido'
+import AtribuiDono from '../pages/AtribuirDono'
 
 function RoutesApp(){
     return(
@@ -77,6 +80,22 @@ function RoutesApp(){
             <Route 
                 path="/grupo/menu/:id/profissionais/profissional" 
                 element={<Private><AdicionarProfissional/></Private>}
+            />
+            <Route 
+                path="/grupo/menu/:id/perdidos" 
+                element={<Private><ItensPerdidos/></Private>}
+            />
+            <Route 
+                path="/grupo/menu/:id/perdidos/perdido" 
+                element={<Private><AdicionarItemPerdido/></Private>}
+            />
+            <Route 
+                path="/grupo/menu/:id/perdidos/perdido/:idItem" 
+                element={<Private><AdicionarItemPerdido/></Private>}
+            />
+            <Route 
+                path="/grupo/menu/:id/perdidos/perdido/:idItem/atribuir" 
+                element={<Private><AtribuiDono/></Private>}
             />
         </Routes>
     )
