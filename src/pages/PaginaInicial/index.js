@@ -23,6 +23,7 @@ function PaginaInicial(){
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        //update
         const docRef = collection(db, 'grupos')
         const q = query(docRef, where('participantes', 'array-contains', user.id))
 
