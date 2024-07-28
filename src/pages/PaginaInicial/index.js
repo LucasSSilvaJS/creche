@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../contexts/auth'
 
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { collection, onSnapshot, query, where } from 'firebase/firestore'
 import { db } from '../../services/firebaseConnection'
 
 function PaginaInicial(){
@@ -23,29 +23,25 @@ function PaginaInicial(){
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        async function loadGroups(){
-            try{
-                const docRef = collection(db, 'grupos')
-                const q = query(docRef, where('participantes', 'array-contains', user.id))
-                
-                const snapshot = await getDocs(q)
-                const lista = []
-                snapshot.docs.forEach(item => {
-                    lista.push({
-                        idGrupo: item.id,
-                        ...item.data()
-                    })
-                })
-                setGrupos(lista)
-                
-            }catch(error){
-                console.error('Erro ao carregar os grupos', error)
-            }finally{
-                setLoading(false)
-            }
-        }
+        const docRef = collection(db, 'grupos')
+        const q = query(docRef, where('participantes', 'array-contains', user.id))
 
-        loadGroups()
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const lista = []
+            snapshot.docs.forEach(item => {
+                lista.push({
+                    idGrupo: item.id,
+                    ...item.data()
+                })
+            })
+            setGrupos(lista)
+            setLoading(false)
+        }, (error) => {
+            console.error('Erro ao carregar os grupos', error)
+            setLoading(false)
+        })
+
+        return () => unsubscribe()
     }, [user])
 
     function deleteGrupo(){

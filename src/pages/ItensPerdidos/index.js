@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../services/firebaseConnection';
 
 function ItensPerdidos() {
@@ -22,29 +22,26 @@ function ItensPerdidos() {
     const [itensPerdidos, setItensPerdidos] = useState([])
 
     useEffect(() => {
-        async function getLostItens(){
-            setLoading(true)
-            const docRef = collection(db, 'itensPerdidos')
-            await getDocs(docRef)
-            .then((snapshot) => {
-                const lista = []
-                snapshot.docs.forEach(item => {
-                    lista.push({
-                        idItemPerdido: item.id,
-                        ...item.data()
-                    })
-                })
-                setItensPerdidos(lista)
-            })
-            .catch(error => {
-                toast.warn('Erro aos carregar os itens perdidos!')
-            })
-            .finally(() => {
-                setLoading(false)
-            })
-        }
+        setLoading(true)
+        const docRef = collection(db, 'itensPerdidos')
 
-        getLostItens()
+        const unsubscribe = onSnapshot(docRef, (snapshot) => {
+            const lista = []
+            snapshot.docs.forEach(item => {
+                lista.push({
+                    idItemPerdido: item.id,
+                    ...item.data()
+                })
+            })
+            setItensPerdidos(lista)
+            setLoading(false)
+        }, (error) => {
+            toast.warn('Erro aos carregar os itens perdidos!')
+            setLoading(false)
+        })
+
+        return () => unsubscribe()
+
     }, [])
 
     return ( 

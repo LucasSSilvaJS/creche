@@ -8,7 +8,7 @@ import Loading from '../../components/Loading';
 import { toast } from 'react-toastify';
 
 import { useContext, useEffect, useState } from 'react';
-import { arrayRemove, arrayUnion, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, collection, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '../../services/firebaseConnection';
 import { AuthContext } from '../../contexts/auth';
 import { useNavigate } from 'react-router-dom';
@@ -23,51 +23,60 @@ function Solicitacoes() {
     const navigate = useNavigate()
     
     useEffect(() => {
-        async function loadNotification(){
-            try{
-                setLoading(true)
+        setLoading(true)
 
-                const docRefGrupos = collection(db, 'grupos')
-                const q = query(docRefGrupos, where('solicitacoes', 'array-contains', user.id))
+        const docRefGrupos = collection(db, 'grupos')
+        const q = query(docRefGrupos, where('solicitacoes', 'array-contains', user.id))
 
-                const grupos = await getDocs(q)
-                
-                const userIds = []
-                const gruposComUsuario = []
+        const unsubscribeGrupos = onSnapshot(q, (snapshotGrupos) => {
+            const userIds = []
+            const gruposComUsuario = []
 
-                grupos.docs.forEach(grupo => {
-                    userIds.push(grupo.data().userId)
-                    gruposComUsuario.push({
-                        idGrupo: grupo.id,
-                        grupo: grupo.data().grupo
-                    })
+            snapshotGrupos.docs.forEach(grupo => {
+                userIds.push(grupo.data().userId)
+                gruposComUsuario.push({
+                    idGrupo: grupo.id,
+                    grupo: grupo.data().grupo
                 })
+            })
 
-                if(userIds.length > 0){
-                    const docRefUsuarios = collection(db, 'usuarios')
-                    const q2 = query(docRefUsuarios, where('id', 'in', userIds))
-        
-                    const usuarios = await getDocs(q2)
-        
-                    usuarios.docs.forEach(usuario => {
+            if (userIds.length > 0) {
+                const docRefUsuarios = collection(db, 'usuarios')
+                const q2 = query(docRefUsuarios, where('id', 'in', userIds))
+
+                const unsubscribeUsuarios = onSnapshot(q2, (snapshotUsuarios) => {
+                    snapshotUsuarios.docs.forEach(usuario => {
                         gruposComUsuario.forEach(grupo => {
-                            grupo.nome = usuario.data().nome
-                            grupo.imageUrl = usuario.data().imageUrl
+                            if (grupo.userId === usuario.id) {
+                                grupo.nome = usuario.data().nome
+                                grupo.imageUrl = usuario.data().imageUrl
+                            }
                         })
                     })
-        
                     setSolicitacoes(gruposComUsuario)
-                }else{
-                    toast.error('Nenhuma solicitação encontrada')
-                }
-            }catch(error){
-                toast.error('Erro ao encontrar solicitações')
-            }finally{
-                setLoading(false)
-            }
-        }
+                    setLoading(false)
+                }, (error) => {
+                    console.error('Erro ao obter dados dos participantes', error)
+                    setLoading(false)
+                })
 
-        loadNotification()
+                // Cleanup subscription on unmount
+                return () => {
+                    unsubscribeUsuarios()
+                }
+            } else {
+                setSolicitacoes([])
+                setLoading(false)
+                toast.error('Nenhuma solicitação encontrada')
+            }
+        }, (error) => {
+            toast.error('Erro ao encontrar solicitações')
+            setLoading(false)
+        })
+
+        return () => {
+            unsubscribeGrupos()
+        }
     }, [user])
 
     async function accepted(idGrupo){

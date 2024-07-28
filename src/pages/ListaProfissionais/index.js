@@ -8,7 +8,7 @@ import Loading from "../../components/Loading";
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../services/firebaseConnection';
 
 function ListaProfissionais() {
@@ -22,41 +22,43 @@ function ListaProfissionais() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        async function loadProfissionais(){
-            const docRefGrupos = doc(db, 'grupos', id)
+        setLoading(true)
 
-            const snapshot = await getDoc(docRefGrupos)
-            const listaDeIds = snapshot.data().participantes
-
-            if(listaDeIds.length > 0){
+        const docRefGrupos = doc(db, 'grupos', id)
+        const unsubscribeGrupo = onSnapshot(docRefGrupos, (snapshot) => {
+            const listaDeIds = snapshot.data()?.participantes || []
+            if (listaDeIds.length > 0) {
                 getParticipantes(listaDeIds)
+            } else {
+                setParticipantes([])
+                setLoading(false)
             }
-        }
+        })
 
-        async function getParticipantes(ids){
-            try{
-                setLoading(true)
+        function getParticipantes(ids) {
+            const docRef = collection(db, 'usuarios')
+            const q = query(docRef, where('id', 'in', ids))
 
-                const docRef = collection(db, 'usuarios')
-                const q = query(docRef, where('id', 'in', ids))
-        
-                const snapshot = await getDocs(q)
+            const unsubscribeParticipantes = onSnapshot(q, (snapshot) => {
                 const lista = []
                 snapshot.docs.forEach(item => {
                     lista.push({
                         ...item.data()
                     })
                 })
-                
                 setParticipantes(lista)
-            }catch(error){
-                console.error('Ocorreu um erro ao obter os dados dos participantes', error)
-            }finally{
                 setLoading(false)
-            }
+            }, (error) => {
+                console.error('Ocorreu um erro ao obter os dados dos participantes', error)
+                setLoading(false)
+            })
+
+            return unsubscribeParticipantes
         }
 
-        loadProfissionais()
+        return () => {
+            unsubscribeGrupo()
+        }
     }, [id])
 
 

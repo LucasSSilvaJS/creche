@@ -10,7 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 import { db } from '../../services/firebaseConnection'
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore'
 
 import { format } from 'date-fns'
 import { toast } from 'react-toastify'
@@ -26,49 +26,43 @@ function ListaItens() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        async function buscarItens(){
-            setLoading(true)
+        setLoading(true)
 
-            buscarEstudante()
+        const docRef = collection(db, 'itens')
+        const q = query(docRef, where('idEstudante', '==', idEstudante))
 
-            const docRef = collection(db, 'itens')
-            const q = query(docRef, where('idEstudante', '==', idEstudante))
-
-            await getDocs(q)
-            .then((snapshot) => {
-                const lista = []
-                snapshot.docs.forEach((item) => {
-                    lista.push({
-                        id: item.id,
-                        ...item.data()
-                    })
+        const unsubscribeItens = onSnapshot(q, (snapshot) => {
+            const lista = []
+            snapshot.docs.forEach((item) => {
+                lista.push({
+                    id: item.id,
+                    ...item.data()
                 })
-                setItens(lista)
             })
-            .catch(error => {
-                toast.error('Não foi possível carregar os itens!')
-            })
-            .finally(() => {
-                setLoading(false)
-            })
-        }
+            setItens(lista)
+            setLoading(false)
+        }, (error) => {
+            toast.error('Não foi possível carregar os itens!')
+            setLoading(false)
+        })
 
-        async function buscarEstudante(){
-            const docRef = doc(db, 'estudantes', idEstudante)
-
-            await getDoc(docRef)
-            .then((snapshot) => {
-                const data = {
-                    nome: snapshot.data().nome
-                }
-                setEstudante(data)
-            })
-            .catch(error => {
+        const docEstudanteRef = doc(db, 'estudantes', idEstudante)
+        
+        const unsubscribeEstudante = onSnapshot(docEstudanteRef, (snapshot) => {
+            if (snapshot.exists()) {
+                setEstudante({ nome: snapshot.data().nome })
+            } else {
                 toast.error('Não foi possível carregar os dados do estudante!')
-            })
+            }
+        }, (error) => {
+            toast.error('Não foi possível carregar os dados do estudante!')
+        })
+
+        return () => {
+            unsubscribeItens()
+            unsubscribeEstudante()
         }
 
-        buscarItens()
     }, [idEstudante])
 
     return (
