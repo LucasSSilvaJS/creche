@@ -1,5 +1,4 @@
 import './atribuir-dono.css'
-import avatar from '../../assets/avatar.png'
 
 import Titulo from '../../components/Titulo';
 import ImgCircle from '../../components/ImgCircle';
@@ -22,6 +21,8 @@ function AtribuiDono() {
     const [estudantes, setEstudantes] = useState([])
     const [loading, setLoading] = useState(false)
 
+    const [urlItem, setUrlItem] = useState('')
+
     const nomesDosEstudantes = estudantes.map(estudante => estudante.nome)
 
     const navigate = useNavigate()
@@ -43,9 +44,23 @@ function AtribuiDono() {
                 })
                 setEstudantes(lista)
             })
+            .then(() => {
+                loadItemPerdido()
+            })
             .finally(() => {
                 setLoading(false)
             })
+        }
+
+        async function loadItemPerdido(){
+            const docRef = doc(db, 'itensPerdidos', idItem)
+            const itemPerdido = await getDoc(docRef)
+            if(itemPerdido.exists()){
+                const url = itemPerdido.data().url
+                setUrlItem(url)
+            }else{
+                navigate(`/grupo/menu/${id}/perdidos`)
+            }
         }
 
         loadDonos()
@@ -93,7 +108,7 @@ function AtribuiDono() {
                 <h1>Atribuir dono</h1>
             </Titulo>
 
-            <ImgCircle src={avatar} alt="imagem do item perdido"/>
+            <ImgCircle src={urlItem} alt="imagem do item perdido"/>
 
             <InputField textLabel="Dono do item perdido">
                 <Select 

@@ -51,7 +51,6 @@ function AdicionarGrupo(){
             const docRef = collection(db, 'grupos')
             await addDoc(docRef, {
                 userId: user.id,
-                userName: user.nome,
                 created: new Date(),
                 grupo,
                 escola,

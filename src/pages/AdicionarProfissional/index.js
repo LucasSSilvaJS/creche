@@ -65,7 +65,7 @@ function AdicionarProfissional() {
     
                 navigate(`/grupo/menu/${id}/profissionais`)
             }else{
-                toast.warn('Como administrador, você não pode solicitar você mesmo!')
+                toast.warn('Você não pode solicitar a si mesmo!')
             }
 
 

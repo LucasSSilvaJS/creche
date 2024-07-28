@@ -143,7 +143,8 @@ function AuthProvider({ children }) {
             register,
             loadingLogin,
             loadingRegister,
-            getLoginInLocalStorage
+            getLoginInLocalStorage,
+            setLoginInLocalStorage
         }}>
             {children}
         </AuthContext.Provider>

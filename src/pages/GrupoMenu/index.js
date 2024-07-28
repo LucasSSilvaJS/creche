@@ -20,19 +20,23 @@ function GrupoMenu(){
 
     useEffect(() => {
         async function loadCard(){
-            const docRef = doc(db, 'grupos', id)
-
-            await getDoc(docRef)
-            .then(snapshot => {
-                const item = {
-                    grupo: snapshot.data().grupo,
-                    userName: snapshot.data().userName
-                }
+            try {
+                const docRefGrupos = doc(db, 'grupos', id)
+                const getGrupo = await getDoc(docRefGrupos)
+                const grupo = getGrupo.data().grupo
+                
+                const userId = getGrupo.data().userId
+    
+                const docRefUsuarios = doc(db, 'usuarios', userId)
+                const getUsuario = await getDoc(docRefUsuarios)
+                const userName = getUsuario.data().nome
+                
+                const item = {grupo, userName}
                 setCard(item)
-            })
-            .finally(() => {
+                
+            }finally{
                 setLoading(false)
-            })
+            }
         }
 
         loadCard()

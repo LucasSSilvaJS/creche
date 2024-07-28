@@ -1,5 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 
+import Private from './Private'
+import Public from './Public'
+
 import Login from '../pages/Login'
 import Cadastro from '../pages/Cadastro'
 import PaginaInicial from '../pages/PaginaInicial'
@@ -9,14 +12,15 @@ import ListaEstudantes from '../pages/ListaEstudantes'
 import AdicionarEstudante from '../pages/AdicionarEstudante'
 import ListaItens from '../pages/ListaItens'
 import AdicionarItem from '../pages/AdicionarItem'
-
-import Private from './Private'
-import Public from './Public'
 import ListaProfissionais from '../pages/ListaProfissionais'
 import AdicionarProfissional from '../pages/AdicionarProfissional'
 import ItensPerdidos from '../pages/ItensPerdidos'
 import AdicionarItemPerdido from '../pages/AdicionarItemPerdido'
 import AtribuiDono from '../pages/AtribuirDono'
+import Perfil from '../pages/Perfil'
+import EditarPerfil from '../pages/EditarPerfil'
+import AlterarSenha from '../pages/AlterarSenha'
+import Solicitacoes from '../pages/Solicitacoes'
 
 function RoutesApp(){
     return(
@@ -96,6 +100,22 @@ function RoutesApp(){
             <Route 
                 path="/grupo/menu/:id/perdidos/perdido/:idItem/atribuir" 
                 element={<Private><AtribuiDono/></Private>}
+            />
+            <Route 
+                path="/perfil" 
+                element={<Private><Perfil/></Private>}
+            />
+            <Route 
+                path="/perfil/editar" 
+                element={<Private><EditarPerfil/></Private>}
+            />
+            <Route 
+                path="/perfil/alterar-senha" 
+                element={<Private><AlterarSenha/></Private>}
+            />
+            <Route 
+                path="/perfil/solicitacoes" 
+                element={<Private><Solicitacoes/></Private>}
             />
         </Routes>
     )
