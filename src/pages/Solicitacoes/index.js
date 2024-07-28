@@ -78,7 +78,7 @@ function Solicitacoes() {
         })
         .then(() => {
             toast.success('Convite aceitado com sucesso!')
-            navigate('/grupos')
+            navigate('/pagina-inicial')
         })
         .catch(error => {
             toast.error("Não foi possível aceitar o convite!")
