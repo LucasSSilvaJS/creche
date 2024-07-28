@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../contexts/auth'
 
-import { collection, onSnapshot, query, where } from 'firebase/firestore'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../../services/firebaseConnection'
 
 function PaginaInicial(){
@@ -23,32 +23,29 @@ function PaginaInicial(){
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        if (!user || !user.id) {
-            console.error('Usuário não está autenticado ou não tem um id.');
-            setLoading(false);
-            return;
+        async function loadGroups(){
+            try{
+                const docRef = collection(db, 'grupos')
+                const q = query(docRef, where('participantes', 'array-contains', user.id))
+                
+                const snapshot = await getDocs(q)
+                const lista = []
+                snapshot.docs.forEach(item => {
+                    lista.push({
+                        idGrupo: item.id,
+                        ...item.data()
+                    })
+                })
+                setGrupos(lista)
+                
+            }catch(error){
+                console.error('Erro ao carregar os grupos', error)
+            }finally{
+                setLoading(false)
+            }
         }
 
-        //update
-        const docRef = collection(db, 'grupos')
-        const q = query(docRef, where('participantes', 'array-contains', user.id))
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const lista = []
-            snapshot.docs.forEach(item => {
-                lista.push({
-                    idGrupo: item.id,
-                    ...item.data()
-                })
-            })
-            setGrupos(lista)
-            setLoading(false)
-        }, (error) => {
-            console.error('Erro ao carregar os grupos', error)
-            setLoading(false)
-        })
-
-        return () => unsubscribe()
+        loadGroups()
     }, [user])
 
     function deleteGrupo(){

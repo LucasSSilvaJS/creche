@@ -11,7 +11,7 @@ import Loading from '../../components/Loading'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
-import { collection, onSnapshot, query, where } from 'firebase/firestore'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../../services/firebaseConnection'
 
 function ListaEstudantes(){
@@ -23,28 +23,30 @@ function ListaEstudantes(){
     const navigate = useNavigate()
 
     useEffect(() => {
-        setLoading(true)
-        const docRef = collection(db, 'estudantes')
-        const q = query(docRef, where('idGrupo', '==', id))
+        async function loadStudents(){
+            setLoading(true)
+            const docRef = collection(db, 'estudantes')
+            const q = query(docRef, where('idGrupo', '==', id))
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const lista = []
+            await getDocs(q)
+            .then((snapshot) => {
+                const lista = []
 
-            snapshot.docs.forEach(item => {
-                lista.push({
-                    id: item.id,
-                    nome: item.data().nome
+                snapshot.docs.forEach(item => {
+                    lista.push({
+                        id: item.id,
+                        nome: item.data().nome
+                    })
                 })
+
+                setEstudantes(lista)
             })
+            .finally(() => {
+                setLoading(false)
+            })
+        }
 
-            setEstudantes(lista)
-            setLoading(false)
-        }, (error) => {
-            console.error("Erro ao carregar os estudantes: ", error)
-            setLoading(false)
-        })
-
-        return () => unsubscribe()
+        loadStudents()
     }, [id])
 
     return(
