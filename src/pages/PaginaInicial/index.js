@@ -23,6 +23,12 @@ function PaginaInicial(){
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        if (!user || !user.id) {
+            console.error('Usuário não está autenticado ou não tem um id.');
+            setLoading(false);
+            return;
+        }
+
         //update
         const docRef = collection(db, 'grupos')
         const q = query(docRef, where('participantes', 'array-contains', user.id))
