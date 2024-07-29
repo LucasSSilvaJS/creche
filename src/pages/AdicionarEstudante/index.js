@@ -50,6 +50,12 @@ function AdicionarEstudante() {
 
     async function createStudent(){
         try{
+
+            if(nome === ''){
+                toast.error('Preencha todos os campos')
+                return
+            }
+
             setLoading(true)
 
             const collectionRef = collection(db, 'estudantes')
@@ -80,6 +86,11 @@ function AdicionarEstudante() {
 
     async function editStudent(){
         try {
+            if(nome === ''){
+                toast.error('Preencha todos os campos')
+                return
+            }
+            
             setLoading(true)
 
             const docRefEstudantes = doc(db, 'estudantes', idEstudante)
