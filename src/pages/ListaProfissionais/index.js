@@ -8,8 +8,9 @@ import Loading from "../../components/Loading";
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { arrayRemove, collection, doc, getDoc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '../../services/firebaseConnection';
+import { toast } from 'react-toastify';
 
 function ListaProfissionais() {
 
@@ -22,15 +23,20 @@ function ListaProfissionais() {
     const navigate = useNavigate()
 
     useEffect(() => {
+        let unSubProfissionais = null
+        let unSubParticipantes = null
+
         async function loadProfissionais(){
             const docRefGrupos = doc(db, 'grupos', id)
 
-            const snapshot = await getDoc(docRefGrupos)
-            const listaDeIds = snapshot.data().participantes
+            unSubProfissionais = onSnapshot(docRefGrupos, (snapshot) => {
+                const listaDeIds = snapshot.data().participantes
+                
+                if(listaDeIds.length > 0){
+                    getParticipantes(listaDeIds)
+                }
+            })
 
-            if(listaDeIds.length > 0){
-                getParticipantes(listaDeIds)
-            }
         }
 
         async function getParticipantes(ids){
@@ -40,15 +46,15 @@ function ListaProfissionais() {
                 const docRef = collection(db, 'usuarios')
                 const q = query(docRef, where('id', 'in', ids))
         
-                const snapshot = await getDocs(q)
-                const lista = []
-                snapshot.docs.forEach(item => {
-                    lista.push({
-                        ...item.data()
+                unSubParticipantes = onSnapshot(q, (snapshot) => {
+                    const lista = []
+                    snapshot.docs.forEach(item => {
+                        lista.push({
+                            ...item.data()
+                        })
                     })
+                    setParticipantes(lista)
                 })
-                
-                setParticipantes(lista)
             }catch(error){
                 console.error('Ocorreu um erro ao obter os dados dos participantes', error)
             }finally{
@@ -57,8 +63,33 @@ function ListaProfissionais() {
         }
 
         loadProfissionais()
+
+        return () => {
+            if(unSubParticipantes) unSubParticipantes()
+            if(unSubProfissionais) unSubProfissionais()
+        }
     }, [id])
 
+    async function deleteProfissional(participanteId){
+        try{
+            const docRef = doc(db, 'grupos', id)
+
+            const grupo = await getDoc(docRef)
+
+            if(participanteId === grupo.data().userId){
+                toast.error('Você não pode excluir o dono do grupo')
+                return
+            }
+
+            await updateDoc(docRef, {
+                participantes: arrayRemove(participanteId)
+            })
+
+            toast.success('Participante deletado!')
+        }catch{
+            toast.error('Erro ao deletar participante!')
+        }
+    }
 
     return ( 
         <div className="lista-profissionais container responsive-navbar">
@@ -72,8 +103,9 @@ function ListaProfissionais() {
                         <CardImg
                             key={index}
                             urlImg={participante.imageUrl}
-                            adm={false}
+                            adm={true}
                             ableEdit={false}
+                            handleDelete={() => deleteProfissional(participante.id)}
                         >
                             <h2>{participante.nome}</h2>
                             <h3>{participante.cargo}</h3>

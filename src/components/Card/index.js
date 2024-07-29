@@ -18,6 +18,7 @@ function Card({title, subtitle, handleEditCard, handleDeleteCard, handleMenu}){
                 <h2 className="card__title">{title}</h2>
                 <h3 className="card__subtitle">{subtitle}</h3>                
             </div>
+            
             <div className="card__buttons">
                 <button className="button__edit" onClick={handleEditClick}>
                     <BiEdit size={20} color="#F3EEEA"/>
@@ -26,6 +27,7 @@ function Card({title, subtitle, handleEditCard, handleDeleteCard, handleMenu}){
                     <BiTrash size={20} color="#F3EEEA"/>
                 </button>
             </div>
+            
         </article>
     )
 }

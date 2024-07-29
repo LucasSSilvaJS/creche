@@ -8,10 +8,9 @@ import Loading from '../../components/Loading';
 import { toast } from 'react-toastify';
 
 import { useContext, useEffect, useState } from 'react';
-import { arrayRemove, arrayUnion, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, collection, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '../../services/firebaseConnection';
 import { AuthContext } from '../../contexts/auth';
-import { useNavigate } from 'react-router-dom';
 
 function Solicitacoes() {
     const { user } = useContext(AuthContext)
@@ -20,54 +19,81 @@ function Solicitacoes() {
 
     const [loading, setLoading] = useState(false)
 
-    const navigate = useNavigate()
-    
     useEffect(() => {
-        async function loadNotification(){
-            try{
-                setLoading(true)
+        let unSubGrupos = null
+        let unSubUsuarios = null
 
+        async function loadSolicitacoes() {
+            setLoading(true)
+            try {
                 const docRefGrupos = collection(db, 'grupos')
                 const q = query(docRefGrupos, where('solicitacoes', 'array-contains', user.id))
 
-                const grupos = await getDocs(q)
-                
                 const userIds = []
-                const gruposComUsuario = []
 
-                grupos.docs.forEach(grupo => {
-                    userIds.push(grupo.data().userId)
-                    gruposComUsuario.push({
-                        idGrupo: grupo.id,
-                        grupo: grupo.data().grupo
+                unSubGrupos = onSnapshot(q, (grupos) => {
+                    const arrayGrupo = []
+                    grupos.docs.forEach(grupo => {
+                        arrayGrupo.push({
+                            idGrupo: grupo.id,
+                            grupo: grupo.data().grupo,
+                            userId: grupo.data().userId
+                        })
+                        userIds.push(grupo.data().userId)
                     })
+
+                    if (userIds.length > 0) {
+                        fetchUsuarios(userIds, arrayGrupo)
+                    } else {
+                        setSolicitacoes([])
+                        setLoading(false)
+                    }
+                }, (error) => {
+                    console.error('Erro ao ouvir mudanças em grupos!', error)
+                    setLoading(false)
                 })
 
-                if(userIds.length > 0){
+                async function fetchUsuarios(userIds, arrayGrupo) {
                     const docRefUsuarios = collection(db, 'usuarios')
                     const q2 = query(docRefUsuarios, where('id', 'in', userIds))
-        
-                    const usuarios = await getDocs(q2)
-        
-                    usuarios.docs.forEach(usuario => {
-                        gruposComUsuario.forEach(grupo => {
-                            grupo.nome = usuario.data().nome
-                            grupo.imageUrl = usuario.data().imageUrl
+
+                    unSubUsuarios = onSnapshot(q2, (usuarios) => {
+                        const arrayUsuario = []
+                        usuarios.docs.forEach(usuario => {
+                            arrayUsuario.push({
+                                id: usuario.id,
+                                nome: usuario.data().nome,
+                                imageUrl: usuario.data().imageUrl
+                            })
                         })
+
+                        const solicitacoes = arrayGrupo.map(grupo => {
+                            const usuario = arrayUsuario.find(user => user.id === grupo.userId)
+                            return {
+                                ...grupo,
+                                ...usuario
+                            }
+                        })
+
+                        setSolicitacoes(solicitacoes)
+                        setLoading(false)
+                    }, (error) => {
+                        console.error('Erro ao ouvir mudanças em usuários!', error)
+                        setLoading(false)
                     })
-        
-                    setSolicitacoes(gruposComUsuario)
-                }else{
-                    toast.error('Nenhuma solicitação encontrada')
                 }
-            }catch(error){
-                toast.error('Erro ao encontrar solicitações')
-            }finally{
+            } catch (error) {
+                console.error('Erro ao consultar as solicitações!', error)
                 setLoading(false)
             }
         }
 
-        loadNotification()
+        loadSolicitacoes()
+
+        return () => {
+            if (unSubGrupos) unSubGrupos()
+            if (unSubUsuarios) unSubUsuarios()
+        }
     }, [user])
 
     async function accepted(idGrupo){
@@ -78,7 +104,6 @@ function Solicitacoes() {
         })
         .then(() => {
             toast.success('Convite aceitado com sucesso!')
-            navigate('/pagina-inicial')
         })
         .catch(error => {
             toast.error("Não foi possível aceitar o convite!")

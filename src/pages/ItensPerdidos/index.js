@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../services/firebaseConnection';
 
 function ItensPerdidos() {
@@ -22,30 +22,48 @@ function ItensPerdidos() {
     const [itensPerdidos, setItensPerdidos] = useState([])
 
     useEffect(() => {
+        let unSub = null
+
         async function getLostItens(){
-            setLoading(true)
-            const docRef = collection(db, 'itensPerdidos')
-            await getDocs(docRef)
-            .then((snapshot) => {
-                const lista = []
-                snapshot.docs.forEach(item => {
-                    lista.push({
-                        idItemPerdido: item.id,
-                        ...item.data()
+            try{
+                setLoading(true)
+                const docRef = collection(db, 'itensPerdidos')
+                unSub = await onSnapshot(docRef, (snapshot) => {
+                    const lista = []
+                    snapshot.docs.forEach(item => {
+                        lista.push({
+                            idItemPerdido: item.id,
+                            ...item.data()
+                        })
                     })
+                    setItensPerdidos(lista)
                 })
-                setItensPerdidos(lista)
-            })
-            .catch(error => {
+
+            }catch(error){
                 toast.warn('Erro aos carregar os itens perdidos!')
-            })
-            .finally(() => {
+            }finally{
                 setLoading(false)
-            })
+            }
         }
 
         getLostItens()
+
+        return () => {
+            if(unSub) unSub()
+        }
     }, [])
+
+    async function removerItemPerdido(idItemPerdido){
+        try{
+            const docRef = doc(db, 'itensPerdidos', idItemPerdido)
+            await deleteDoc(docRef)
+
+            toast.success('Item perdido removido com sucesso!')
+        }catch(error){
+            console.error('Erro ao remover item perdido', error)
+            toast.error('Erro ao remover item perdido!')
+        }
+    }
 
     return ( 
         <div className="itens-perdidos container responsive-navbar">
@@ -59,7 +77,7 @@ function ItensPerdidos() {
                     key={index}
                     urlImg={item.url} 
                     handleEdit={() => navigate(`/grupo/menu/${id}/perdidos/perdido/${item.idItemPerdido}`)} 
-                    handleDelete={() => toast.success('Item deletado')}
+                    handleDelete={() => removerItemPerdido(item.idItemPerdido)}
                     handleNavigate={() => navigate(`/grupo/menu/${id}/perdidos/perdido/${item.idItemPerdido}/atribuir`)}
                 >
                     <h2>{item.nome}</h2>

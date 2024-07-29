@@ -10,7 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 import { db } from '../../services/firebaseConnection'
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
+import { arrayRemove, collection, deleteDoc, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore'
 
 import { format } from 'date-fns'
 import { toast } from 'react-toastify'
@@ -26,50 +26,78 @@ function ListaItens() {
     const navigate = useNavigate()
 
     useEffect(() => {
+        let unSubItens = null
+        let unSubEstudante = null
         async function buscarItens(){
             setLoading(true)
 
-            buscarEstudante()
+            try{
+                const docRef = collection(db, 'itens')
+                const q = query(docRef, where('idEstudante', '==', idEstudante))
 
-            const docRef = collection(db, 'itens')
-            const q = query(docRef, where('idEstudante', '==', idEstudante))
-
-            await getDocs(q)
-            .then((snapshot) => {
-                const lista = []
-                snapshot.docs.forEach((item) => {
-                    lista.push({
-                        id: item.id,
-                        ...item.data()
+                unSubItens = onSnapshot(q, (snapshot) => {
+                    const lista = []
+                    snapshot.docs.forEach((item) => {
+                        lista.push({
+                            id: item.id,
+                            ...item.data()
+                        })
                     })
+    
+                    setItens(lista)
                 })
-                setItens(lista)
-            })
-            .catch(error => {
+
+            }catch(error){
                 toast.error('Não foi possível carregar os itens!')
-            })
-            .finally(() => {
+            }finally{
                 setLoading(false)
-            })
+            }
         }
 
         async function buscarEstudante(){
-            const docRef = doc(db, 'estudantes', idEstudante)
 
-            await getDoc(docRef)
-            .then((snapshot) => {
-                const data = {
-                    nome: snapshot.data().nome
-                }
-                setEstudante(data)
-            })
-            .catch(error => {
+            try{
+                const docRef = doc(db, 'estudantes', idEstudante)
+
+                unSubEstudante = onSnapshot(docRef, (snapshot) => {
+                    const data = {
+                        nome: snapshot.data().nome
+                    }
+                    setEstudante(data)
+                })
+
+            }catch(error){
                 toast.error('Não foi possível carregar os dados do estudante!')
-            })
+            }
         }
 
+        buscarEstudante()
         buscarItens()
+
+        return () => {
+            if (unSubEstudante) unSubEstudante()
+            if (unSubItens) unSubItens()
+        }
     }, [idEstudante])
+
+    async function deletarItem(idItem){
+        try{
+            const docRefItem = doc(db, 'itens', idItem)
+
+            await deleteDoc(docRefItem)
+
+            const docRefEstudante = doc(db, 'estudantes', idEstudante)
+
+            await updateDoc(docRefEstudante, {
+                itens: arrayRemove(idItem)
+            })
+
+            toast.success('Item removido com sucesso!')
+        }catch(error){
+            console.log('Erro ao deletar item', error)
+            toast.error('Erro ao deletar item')
+        }
+    }
 
     return (
         <div className="responsive-navbar container lista-itens">
@@ -83,7 +111,7 @@ function ListaItens() {
                         key={index} 
                         urlImg={item.url}
                         handleEdit={() => navigate(`/grupo/menu/${id}/estudantes/estudante/${idEstudante}/itens/item/${item.id}`)}
-                        handleDelete={() => toast.success('Item deletado')}
+                        handleDelete={() => deletarItem(item.id)}
                     >
                         <h2>{item.nome}</h2>
                         <h3>

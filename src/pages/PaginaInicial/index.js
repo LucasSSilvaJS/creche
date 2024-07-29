@@ -11,8 +11,9 @@ import { useNavigate } from 'react-router-dom'
 import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../contexts/auth'
 
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { collection, deleteDoc, doc, getDocs, onSnapshot, query, where } from 'firebase/firestore'
 import { db } from '../../services/firebaseConnection'
+import { toast } from 'react-toastify'
 
 function PaginaInicial(){
     const navigate = useNavigate()
@@ -23,21 +24,23 @@ function PaginaInicial(){
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        let unSub = null
         async function loadGroups(){
             try{
                 const docRef = collection(db, 'grupos')
                 const q = query(docRef, where('participantes', 'array-contains', user.id))
                 
-                const snapshot = await getDocs(q)
-                const lista = []
-                snapshot.docs.forEach(item => {
-                    lista.push({
-                        idGrupo: item.id,
-                        ...item.data()
+                unSub = onSnapshot(q, (snapshot) => {
+                    const lista = []
+                    snapshot.docs.forEach(item => {
+                        lista.push({
+                            idGrupo: item.id,
+                            ...item.data()
+                        })
                     })
+                    setGrupos(lista)
                 })
-                setGrupos(lista)
-                
+
             }catch(error){
                 console.error('Erro ao carregar os grupos', error)
             }finally{
@@ -46,10 +49,52 @@ function PaginaInicial(){
         }
 
         loadGroups()
+
+        return () => {
+            if(unSub) unSub()
+        }
     }, [user])
 
-    function deleteGrupo(){
-        alert('teste')
+    async function deleteGrupo(idGrupo){
+        try {
+            const docRefGrupo = doc(db, 'grupos', idGrupo)
+            await deleteDoc(docRefGrupo)
+
+            const docRefItens = collection(db, 'itens')
+            const queryItens = query(docRefItens, where('idGrupo', '==', idGrupo))
+
+            const itens = await getDocs(queryItens)
+
+            itens.docs.forEach(async (item) => {
+                const docRefItem = doc(db, 'itens', item.id)
+                await deleteDoc(docRefItem)
+            })
+
+            const docRefEstudantes = collection(db, 'estudantes')
+            const queryEstudantes = query(docRefEstudantes, where('idGrupo', '==', idGrupo))
+
+            const estudantes = await getDocs(queryEstudantes)
+
+            estudantes.docs.forEach(async (estudante) => {
+                const docRefEstudante = doc(db, 'estudantes', estudante.id)
+                await deleteDoc(docRefEstudante)
+            })
+
+            const docRefItensPerdidos = collection(db, 'itensPerdidos')
+            const queryItensPerdidos = query(docRefItensPerdidos, where('idGrupo', '==', idGrupo))
+
+            const itensPerdidos = await getDocs(queryItensPerdidos)
+
+            itensPerdidos.docs.forEach(async (itemPerdido) => {
+                const docRefItemPerdido = doc(db, 'itensPerdidos', itemPerdido.id)
+                await deleteDoc(docRefItemPerdido)
+            })
+            
+            toast.success('Grupo deletado com sucesso')
+        } catch (error) {
+            console.log('Erro ao deletar o grupo', error)
+            toast.error('Erro ao deletar o grupo')
+        }
     }
 
     return(
