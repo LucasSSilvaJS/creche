@@ -1,7 +1,7 @@
 .upload-image{
     width: 100%;
     height: 150px;
-    background-color: rgba(0,0,0, 0.06);
+    background: rgba(0,0,0, 0.06);
     display: flex;
     justify-content: center;
     align-items: center;

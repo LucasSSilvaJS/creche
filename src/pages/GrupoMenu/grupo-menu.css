@@ -1,5 +1,5 @@
 .grupo-menu{
-    background-color: var(--primary__color);
+    background: var(--primary__color);
 }
 
 .grupo-menu__subtitle{

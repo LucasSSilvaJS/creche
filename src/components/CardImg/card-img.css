@@ -1,7 +1,7 @@
 .card-img{
     width: 100%;
     padding: 20px;
-    background-color: var(--tertiary__color);
+    background: var(--tertiary__color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -43,7 +43,7 @@
 }
 
 .card-img__buttons button{
-    background-color: var(--quaternary__color);    
+    background: var(--quaternary__color);    
     border-radius: 50%;
     width: 30px;
     height: 30px;

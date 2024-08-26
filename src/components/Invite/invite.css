@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     padding: 15px;
-    background-color: var(--tertiary__color);
+    background: var(--tertiary__color);
     color: var(--primary__color);
     gap: 40px;
 }
@@ -31,7 +31,7 @@
 
 .invite__details button{
     color: var(--primary__color);
-    background-color: var(--quaternary__color);
+    background: var(--quaternary__color);
     padding: 5px 0;
     width: 80px;
     border-radius: 15px;

@@ -5,7 +5,7 @@ import { getFirestore } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDW26YK9fh3B7Nx0FjDX0bWrIWWqCZhseU",
+    apiKey: process.env.REACT_APP_API_KEY,
     authDomain: "creche2-cc099.firebaseapp.com",
     projectId: "creche2-cc099",
     storageBucket: "creche2-cc099.appspot.com",

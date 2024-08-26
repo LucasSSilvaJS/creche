@@ -4,7 +4,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,7 +34,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: transparent;
+    background: transparent;
 }
 
 .loader-cube:before {
@@ -49,39 +49,39 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: rgb(252, 248, 248);
+    background: rgb(252, 248, 248);
     opacity: 0.8;
     border: 2px solid rgb(252, 250, 250);
 }
 
 .loader-cube .face:nth-child(1) {
     transform: rotateY(0deg) translateZ(50px);
-    background-color: #e74c3c;
+    background: #e74c3c;
 }
 
 .loader-cube .face:nth-child(2) {
     transform: rotateX(90deg) translateZ(50px);
-    background-color: #3498db;
+    background: #3498db;
 }
 
 .loader-cube .face:nth-child(3) {
     transform: rotateY(180deg) translateZ(50px);
-    background-color: #2ecc71;
+    background: #2ecc71;
 }
 
 .loader-cube .face:nth-child(4) {
     transform: rotateX(-90deg) translateZ(50px);
-    background-color: #f1c40f;
+    background: #f1c40f;
 }
 
 .loader-cube .face:nth-child(5) {
     transform: rotateY(90deg) translateZ(50px);
-    background-color: #9b59b6;
+    background: #9b59b6;
 }
 
 .loader-cube .face:nth-child(6) {
     transform: rotateY(0deg) translateZ(-50px);
-    background-color: #1abc9c;
+    background: #1abc9c;
 }
 
 @keyframes rotate {

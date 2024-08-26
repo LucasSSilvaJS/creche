@@ -1,7 +1,7 @@
 .card{
     width: 100%;
     min-height: 48px;
-    background-color: var(--tertiary__color);
+    background: var(--tertiary__color);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -28,7 +28,7 @@
     border-radius: 50%;
     width: 30px;
     height: 30px;
-    background-color: var(--quaternary__color);
+    background: var(--quaternary__color);
 }
 
 .card__title{
